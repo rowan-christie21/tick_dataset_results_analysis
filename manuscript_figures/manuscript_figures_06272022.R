@@ -3517,7 +3517,7 @@ overall_pw_vs_pwbs_value <- c(tick_dataset_results$proportion_wrong, tick_datase
 overall_pw_vs_pwbs_df <- data.frame(overall_pw_vs_pwbs_lab, overall_pw_vs_pwbs_value)
 
 #overall proportion significantly wrong by proportion wrong before stability
-overall_pw_vs_pwbs <- ggplot(overall_pw_vs_pwbs_df, aes(x = overall_pw_vs_pwbs_lab, y = overall_pw_vs_pwbs_value)) +
+overall_pw_vs_pwbs <- ggplot(overall_pw_vs_pwbs_df, aes(x = reorder(overall_pw_vs_pwbs_lab, overall_pw_vs_pwbs_value), y = overall_pw_vs_pwbs_value)) +
   geom_boxplot() + 
   geom_jitter() +
   scale_x_discrete(name=NULL) +
