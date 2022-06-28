@@ -3422,7 +3422,7 @@ years_to_reach_stability_num <- ggplot(tick_dataset_results, aes(x = stability_t
 
 years_to_reach_stability_num
 
-png(filename = paste("D:/Ixodes_scapularis_research_2019/tick_dataset_results_analysis/manuscript_figures/years_to_reach_stability_num_line_chart ",Sys.Date(),".png", sep = ''), width = 600, height = 454)
+png(filename = paste("D:/Ixodes_scapularis_research_2019/tick_dataset_results_analysis/manuscript_figures/figure_1_years_to_reach_stability_num_line_chart ",Sys.Date(),".png", sep = ''), width = 600, height = 454)
 years_to_reach_stability_num
 dev.off()
 
