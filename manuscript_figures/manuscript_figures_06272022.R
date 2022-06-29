@@ -3418,7 +3418,7 @@ years_to_reach_stability_num <- ggplot(tick_dataset_results, aes(x = stability_t
         axis.text.y=element_text(colour="black", size = 18),
         axis.title.x = element_text(size = 23, margin=margin(15,0,0,0)),
         axis.title.y = element_text(size = 23, margin=margin(0,15,0,0)),
-        plot.margin = margin(10, 20, 0, 0))
+        plot.margin = margin(10, 20, 5, 5))
 
 years_to_reach_stability_num
 
@@ -3470,11 +3470,11 @@ years_to_reach_stability_length <- ggplot(tick_dataset_results, aes(x = data_ran
         axis.text.y=element_text(colour="black", size = 18),
         axis.title.x = element_text(size = 23, margin=margin(15,0,0,0)),
         axis.title.y = element_text(size = 23, margin=margin(0,15,0,0)),
-        plot.margin = margin(10, 20, 0, 0))
+        plot.margin = margin(10, 20, 5, 5))
 
 years_to_reach_stability_length
 
-png(filename = paste("D:/Ixodes_scapularis_research_2019/tick_dataset_results_analysis/manuscript_figures/years_to_reach_stability_length_line_chart ",Sys.Date(),".png", sep = ''), width = 600, height = 454)
+png(filename = paste("D:/Ixodes_scapularis_research_2019/tick_dataset_results_analysis/manuscript_figures/figure_2_years_to_reach_stability_length_line_chart ",Sys.Date(),".png", sep = ''), width = 600, height = 454)
 years_to_reach_stability_length
 dev.off()
 
@@ -3537,8 +3537,117 @@ overall_pw_vs_pwbs <- ggplot(overall_pw_vs_pwbs_df, aes(x = reorder(overall_pw_v
 
 overall_pw_vs_pwbs
 
-png(filename = paste("D:/Ixodes_scapularis_research_2019/tick_dataset_results_analysis/manuscript_figures/overall_pw_vs_pwbs ",Sys.Date(),".png", sep = ''), width = 600, height = 454)
+png(filename = paste("D:/Ixodes_scapularis_research_2019/tick_dataset_results_analysis/manuscript_figures/figure_3_overall_pw_vs_pwbs ",Sys.Date(),".png", sep = ''), width = 600, height = 454)
 overall_pw_vs_pwbs
 dev.off()
 
+##############################
 
+# Figure 4A, 4B
+
+##############################
+
+dragging <- subset(tick_dataset_results, sampling_technique == "dragging")
+found <- subset(tick_dataset_results, sampling_technique == "found on a person")
+
+length(dragging$stability_time)
+#90 datasets
+length(found$stability_time)
+#198 datasets
+
+median(dragging$stability_time)
+#7
+median(found$stability_time)
+#12
+
+t.test(dragging$stability_time, found$stability_time)
+#t = -8.5346, df = 236.23, p-value = 1.724e-15
+#significant
+
+t.test(dragging$proportion_wrong_before_stability, found$proportion_wrong_before_stability)
+#t = 0.083576, df = 155.58, p-value = 0.9335
+#insignificant
+
+###############
+#sampling technique vs stability time
+###############
+
+# create boxplot for proportion significantly wrong between different sampling methods
+tick_dataset_results_drag_found <- subset(tick_dataset_results, sampling_technique == "dragging" | sampling_technique == "found on a person")
+
+#set up compact letter display
+box.rslt <- with(tick_dataset_results_drag_found, graphics::boxplot(stability_time ~ sampling_technique, plot = FALSE))
+ttest.rslt <- with(tick_dataset_results_drag_found, pairwise.t.test(stability_time, sampling_technique, pool.sd = FALSE))
+ltrs <- make_letter_assignments(ttest.rslt)
+x <- c(1:length(ltrs$Letters))
+y <- box.rslt$stats[5, ]
+cbd <- ltrs$Letters
+ltr_df <- data.frame(x, y, cbd)
+
+stability_time_by_samp_tech <- ggplot(tick_dataset_results_drag_found, aes(x = sampling_technique, y = stability_time)) +
+  geom_boxplot() + 
+  geom_jitter() +
+  geom_text(data = ltr_df, aes(x=x, y=y, label=cbd), nudge_y = 1.25,color="red",size=6) +
+  #geom_signif(comparisons = list(c("dragging", "found on a person")), map_signif_level=TRUE) +
+  scale_x_discrete(name = "Sampling technique") +
+  scale_y_continuous(name = "Stability time", limits = c(0,25)) +
+  theme(axis.line.x = element_line(size = 0.5, colour = "black"),
+        axis.line.y = element_line(size = 0.5, colour = "black"),
+        axis.line = element_line(size=1, colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        plot.title=element_text(size = 27, margin=margin(0,0,15,0)),
+        axis.text.x=element_text(colour="black", size = 18),
+        axis.text.y=element_text(colour="black", size = 18),
+        axis.title.x = element_text(size = 23, margin=margin(15,0,0,0)),
+        axis.title.y = element_text(size = 23, margin=margin(0,15,0,0)))
+
+stability_time_by_samp_tech
+
+png(filename = paste("D:/Ixodes_scapularis_research_2019/tick_dataset_results_analysis/stability_time_by_samp_tech ",Sys.Date(),".png", sep = ''), width = 600, height = 454)
+stability_time_by_samp_tech
+dev.off()
+
+###############
+#sampling technique vs proportion wrong before stability
+###############
+
+# create boxplot for proportion significantly wrong between different sampling methods
+tick_dataset_results_drag_found <- subset(tick_dataset_results, sampling_technique == "dragging" | sampling_technique == "found on a person")
+
+#set up compact letter display
+box.rslt <- with(tick_dataset_results_drag_found, graphics::boxplot(proportion_wrong_before_stability ~ sampling_technique, plot = FALSE))
+ttest.rslt <- with(tick_dataset_results_drag_found, pairwise.t.test(proportion_wrong_before_stability, sampling_technique, pool.sd = FALSE))
+ltrs <- make_letter_assignments(ttest.rslt)
+x <- c(1:length(ltrs$Letters))
+y <- box.rslt$stats[5, ]
+cbd <- ltrs$Letters
+ltr_df <- data.frame(x, y, cbd)
+
+proportion_wrong_before_stab_by_samp_tech <- ggplot(tick_dataset_results_drag_found, aes(x = sampling_technique, y = proportion_wrong_before_stability)) +
+  geom_boxplot() + 
+  geom_jitter() +
+  geom_text(data = ltr_df, aes(x=x, y=y, label=cbd), nudge_y = 0.05, color="red", size=6) +
+  #  geom_signif(comparisons = list(c("dragging", "found on a person")), map_signif_level=TRUE, y_position = 1.05, test = "t.test") +
+  scale_x_discrete(name = "Sampling technique") +
+  scale_y_continuous(name = "Proportion significantly wrong \nbefore stability", limits = c(0,1.05)) +
+  theme(axis.line.x = element_line(size = 0.5, colour = "black"),
+        axis.line.y = element_line(size = 0.5, colour = "black"),
+        axis.line = element_line(size=1, colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        plot.title=element_text(size = 27, margin=margin(0,0,15,0)),
+        axis.text.x=element_text(colour="black", size = 18),
+        axis.text.y=element_text(colour="black", size = 18),
+        axis.title.x = element_text(size = 23, margin=margin(15,0,0,0)),
+        axis.title.y = element_text(size = 23, margin=margin(0,15,0,0)))
+
+proportion_wrong_before_stab_by_samp_tech
+
+png(filename = paste("D:/Ixodes_scapularis_research_2019/tick_dataset_results_analysis/proportion_wrong_before_stab_by_samp_tech ",Sys.Date(),".png", sep = ''), width = 600, height = 454)
+proportion_wrong_before_stab_by_samp_tech
+dev.off()
