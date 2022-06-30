@@ -3665,8 +3665,165 @@ dev.off()
 
 ##############################
 
-# Figure 5A, 5B
+# Figure 5A, 5B comparing stability time and proportion significantly wrong for life stage
 
 ##############################
 
+adults <- subset(tick_dataset_results, life_stage == "adult")
+nymphs <- subset(tick_dataset_results, life_stage == "nymph")
+larvae <- subset(tick_dataset_results, life_stage == "larvae")
+
+t.test(adults$stability_time, nymphs$stability_time)
+#t = -0.63883, df = 126.84, p-value = 0.5241
+#insignificant
+t.test(adults$stability_time, larvae$stability_time)
+#t = -5.9627, df = 10.111, p-value = 0.0001328
+#significant
+t.test(nymphs$stability_time, larvae$stability_time)
+#t = -5.5196, df = 10.54, p-value = 0.0002109
+#significant
+
+t.test(adults$proportion_wrong_before_stability, nymphs$proportion_wrong_before_stability)
+#t = 2.8993, df = 113.64, p-value = 0.00449
+#significant
+t.test(adults$proportion_wrong_before_stability, larvae$proportion_wrong_before_stability)
+#t = 0.43788, df = 8.7735, p-value = 0.6721
+#insignificant
+t.test(nymphs$proportion_wrong_before_stability, larvae$proportion_wrong_before_stability)
+#t = -0.75244, df = 7.8941, p-value = 0.4736
+#insignificant
+
+length(adults$stability_time)
+#63 datasets
+length(nymphs$stability_time)
+#66 datasets
+length(larvae$stability_time)
+#8 datasets
+
+median(adults$stability_time)
+#7
+median(nymphs$stability_time)
+#7
+median(larvae$stability_time)
+#11.5
+
+median(adults$proportion_wrong_before_stability)
+#0.1
+median(nymphs$proportion_wrong_before_stability)
+#0.04166667
+median(larvae$proportion_wrong_before_stability)
+#0.07340067
+
+###############
+# 5A life stage vs stability time
+###############
+
+# create boxplot for stability time between different sampling methods
+tick_dataset_results_ls <- subset(tick_dataset_results, life_stage == "adult" | life_stage == "nymph" | life_stage == "larvae")
+tick_dataset_results_ls$life_stage <- factor(tick_dataset_results_ls$life_stage, c("adult", "nymph", "larvae"))
+
+#set up compact letter display
+box.rslt <- with(tick_dataset_results_ls, graphics::boxplot(stability_time ~ life_stage, plot = FALSE))
+ttest.rslt <- with(tick_dataset_results_ls, pairwise.t.test(stability_time, life_stage, pool.sd = FALSE))
+ltrs <- make_letter_assignments(ttest.rslt)
+x <- c(1:length(ltrs$Letters))
+y <- box.rslt$stats[5, ]
+cbd <- ltrs$Letters
+ltr_df <- data.frame(x, y, cbd)
+
+stability_time_by_life_stage <- ggplot(tick_dataset_results_ls, aes(x = life_stage, y = stability_time)) +
+  geom_boxplot() + 
+  geom_jitter() +
+  geom_text(data = ltr_df, aes(x=x, y=y, label=cbd), nudge_y = 1.25,color="red", size=6) +
+  #  geom_signif(comparisons = list(c("adult", "larvae")), map_signif_level=TRUE, y_position = 15, test = "t.test") +
+  #  geom_signif(comparisons = list(c("larvae", "nymph")), map_signif_level=TRUE, y_position = 16.5, test = "t.test") +
+  scale_x_discrete(name = "Life stage") +
+  scale_y_continuous(name = "Stability time", limits = c(0,25)) +
+  theme(axis.line.x = element_line(size = 0.5, colour = "black"),
+        axis.line.y = element_line(size = 0.5, colour = "black"),
+        axis.line = element_line(size=1, colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        plot.title=element_text(size = 27, margin=margin(0,0,15,0)),
+        axis.text.x=element_text(colour="black", size = 18),
+        axis.text.y=element_text(colour="black", size = 18),
+        axis.title.x = element_text(size = 23, margin=margin(15,0,0,0)),
+        axis.title.y = element_text(size = 23, margin=margin(0,15,0,0)))
+
+stability_time_by_life_stage
+
+png(filename = paste("D:/Ixodes_scapularis_research_2019/tick_dataset_results_analysis/manuscript_figures/figure_5A_stability_time_by_life_stage ",Sys.Date(),".png", sep = ''), width = 600, height = 454)
+stability_time_by_life_stage
+dev.off()
+
+###############
+#life stage vs proportion wrong before stability
+###############
+
+# create boxplot for proportion significantly wrong between different life stages
+tick_dataset_results_ls <- subset(tick_dataset_results, life_stage == "adult" | life_stage == "nymph" | life_stage == "larvae")
+tick_dataset_results_ls$life_stage <- factor(tick_dataset_results_ls$life_stage, c("adult", "nymph", "larvae"))
+
+#set up compact letter display
+box.rslt <- with(tick_dataset_results_ls, graphics::boxplot(proportion_wrong_before_stability ~ life_stage, plot = FALSE))
+ttest.rslt <- with(tick_dataset_results_ls, pairwise.t.test(proportion_wrong_before_stability, life_stage, pool.sd = FALSE))
+ltrs <- make_letter_assignments(ttest.rslt)
+x <- c(1:length(ltrs$Letters))
+y <- box.rslt$stats[5, ]
+cbd <- ltrs$Letters
+ltr_df <- data.frame(x, y, cbd)
+
+proportion_wrong_before_stab_by_life_stage <- ggplot(tick_dataset_results_ls, aes(x = life_stage, y = proportion_wrong_before_stability)) +
+  geom_boxplot() + 
+  geom_jitter() +
+  geom_text(data = ltr_df, aes(x=x, y=y, label=cbd), nudge_y = 0.05,color="red", size=6) +
+  #  geom_signif(comparisons = list(c("adult", "nymph")), map_signif_level=TRUE, y_position = 1.05, test = "t.test") +
+  scale_x_discrete(name = "Life stage") +
+  scale_y_continuous(name = "Proportion significantly wrong \nbefore stability", limits = c(0,1.05)) +
+  theme(axis.line.x = element_line(size = 0.5, colour = "black"),
+        axis.line.y = element_line(size = 0.5, colour = "black"),
+        axis.line = element_line(size=1, colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        plot.title=element_text(size = 27, margin=margin(0,0,15,0)),
+        axis.text.x=element_text(colour="black", size = 18),
+        axis.text.y=element_text(colour="black", size = 18),
+        axis.title.x = element_text(size = 23, margin=margin(15,0,0,0)),
+        axis.title.y = element_text(size = 23, margin=margin(0,15,0,0)))
+
+proportion_wrong_before_stab_by_life_stage
+
+png(filename = paste("D:/Ixodes_scapularis_research_2019/tick_dataset_results_analysis/manuscript_figures/figure_5B_proportion_wrong_before_stab_by_life_stage ",Sys.Date(),".png", sep = ''), width = 600, height = 454)
+proportion_wrong_before_stab_by_life_stage
+dev.off()
+
+###############
+# Combined plots 5A and 5B
+###############
+
+#arrange plots 5A and 5B into single image
+figure5AB <- ggarrange(
+  stability_time_by_life_stage + 
+    scale_x_discrete(name = NULL) + 
+    theme(axis.title.y = element_text(margin=margin(0,-20,0,0))), 
+  proportion_wrong_before_stab_by_life_stage, 
+  labels = c("A", "B"), nrow = 2, ncol=1, align = "v", font.label = list(size=25), hjust=-7
+)
+
+figure5AB
+
+png(filename = paste("D:/Ixodes_scapularis_research_2019/tick_dataset_results_analysis/manuscript_figures/figure_5AB ",Sys.Date(),".png", sep = ''), width = 600, height = 908)
+figure5AB
+dev.off()
+
+
+##############################
+
+# Figure 6A, 6B comparing stability time and proportion significantly wrong for geographic scope
+
+##############################
 
