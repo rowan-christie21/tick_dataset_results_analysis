@@ -3922,7 +3922,7 @@ stability_time_by_geographic_scope <- ggplot(tick_dataset_results, aes(x = geogr
   geom_jitter() +
   geom_text(data = ltr_df, aes(x=x, y=y, label=cbd), nudge_y = 1.25,color="red", size=6) +
   scale_x_discrete(name = "Geographic scope") +
-  scale_y_continuous(name = "Stability time", limits = c(0,27), breaks = c(0,5,10,15,20,25)) +
+  scale_y_continuous(name = "Stability time", limits = c(0,25), breaks = c(0,5,10,15,20,25)) +
   theme(axis.line.x = element_line(size = 0.5, colour = "black"),
         axis.line.y = element_line(size = 0.5, colour = "black"),
         axis.line = element_line(size=1, colour = "black"),
