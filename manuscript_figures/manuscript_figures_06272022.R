@@ -3434,6 +3434,9 @@ dev.off()
 
 ##############################
 
+length(tick_dataset_results$vector)
+#confirm 289 observations (raw datasets)
+
 t.test(tick_dataset_results$stability_time, tick_dataset_results$data_range)
 #t = -15.933, df = 485.02, p-value < 2.2e-16
 #difference between datasets is significant
@@ -3452,7 +3455,7 @@ cor(tick_dataset_results$stability_time, tick_dataset_results$stability_time_cul
 years_to_reach_stability_length <- ggplot(tick_dataset_results, aes(x = data_range, y = stability_time, size=stability_time_proportion)) +
   geom_point()+
   scale_y_continuous(name = "Years to reach stability", expand = c(0,0), limits = c(0,25)) +
-  xlab("Study length") + 
+  xlab("Study length (years)") + 
   labs(size="Number of datasets") +
   scale_size_continuous(limits = c(1,300), breaks=seq(50,300,by=50)) +
   xlim(0,25) +
@@ -3555,6 +3558,9 @@ length(dragging$stability_time)
 #90 datasets
 length(found$stability_time)
 #198 datasets
+
+length(subset(tick_dataset_results, sampling_technique == "bites found on a person")$stability_time)
+#one instance was recorded with sampling technique = bites found on a person which was excluded from this analysis
 
 median(dragging$stability_time)
 #7
@@ -3669,36 +3675,40 @@ dev.off()
 
 ##############################
 
-adults <- subset(tick_dataset_results, life_stage == "adult")
-nymphs <- subset(tick_dataset_results, life_stage == "nymph")
+adults <- subset(tick_dataset_results, life_stage == "adult" | life_stage == "adults")
+nymphs <- subset(tick_dataset_results, life_stage == "nymph" | life_stage == "nymphs")
 larvae <- subset(tick_dataset_results, life_stage == "larvae")
 
 t.test(adults$stability_time, nymphs$stability_time)
-#t = -0.63883, df = 126.84, p-value = 0.5241
+#t = -0.63139, df = 128.99, p-value = 0.5289
 #insignificant
 t.test(adults$stability_time, larvae$stability_time)
 #t = -5.9627, df = 10.111, p-value = 0.0001328
 #significant
 t.test(nymphs$stability_time, larvae$stability_time)
-#t = -5.5196, df = 10.54, p-value = 0.0002109
+#t = -5.5593, df = 10.325, p-value = 0.0002145
 #significant
 
 t.test(adults$proportion_wrong_before_stability, nymphs$proportion_wrong_before_stability)
-#t = 2.8993, df = 113.64, p-value = 0.00449
+#t = 2.9877, df = 112.55, p-value = 0.003451
 #significant
 t.test(adults$proportion_wrong_before_stability, larvae$proportion_wrong_before_stability)
 #t = 0.43788, df = 8.7735, p-value = 0.6721
 #insignificant
 t.test(nymphs$proportion_wrong_before_stability, larvae$proportion_wrong_before_stability)
-#t = -0.75244, df = 7.8941, p-value = 0.4736
+#t = -0.77913, df = 7.8459, p-value = 0.4588
 #insignificant
 
 length(adults$stability_time)
 #63 datasets
 length(nymphs$stability_time)
-#66 datasets
+#68 datasets
 length(larvae$stability_time)
 #8 datasets
+
+length(subset(tick_dataset_results, life_stage == "unspecified" | life_stage == "not specified")$stability_time)
+#150
+#all subsets add up to 289
 
 median(adults$stability_time)
 #7
@@ -3718,9 +3728,15 @@ median(larvae$proportion_wrong_before_stability)
 # 5A life stage vs stability time
 ###############
 
-# create boxplot for stability time between different sampling methods
-tick_dataset_results_ls <- subset(tick_dataset_results, life_stage == "adult" | life_stage == "nymph" | life_stage == "larvae")
-tick_dataset_results_ls$life_stage <- factor(tick_dataset_results_ls$life_stage, c("adult", "nymph", "larvae"))
+#change any nymphs to nymph in life stage column
+for(i in 1:nrow(tick_dataset_results)) {
+  if(tick_dataset_results$life_stage[i] == "nymphs") {
+    tick_dataset_results$life_stage[i] = "nymph"
+  }
+}
+
+tick_dataset_results_ls <- subset(tick_dataset_results, life_stage == "larvae" | life_stage == "nymph" | life_stage == "adult")
+tick_dataset_results_ls$life_stage <- factor(tick_dataset_results_ls$life_stage, c("larvae", "nymph", "adult"))
 
 #set up compact letter display
 box.rslt <- with(tick_dataset_results_ls, graphics::boxplot(stability_time ~ life_stage, plot = FALSE))
@@ -3735,8 +3751,6 @@ stability_time_by_life_stage <- ggplot(tick_dataset_results_ls, aes(x = life_sta
   geom_boxplot() + 
   geom_jitter() +
   geom_text(data = ltr_df, aes(x=x, y=y, label=cbd), nudge_y = 1.25,color="red", size=6) +
-  #  geom_signif(comparisons = list(c("adult", "larvae")), map_signif_level=TRUE, y_position = 15, test = "t.test") +
-  #  geom_signif(comparisons = list(c("larvae", "nymph")), map_signif_level=TRUE, y_position = 16.5, test = "t.test") +
   scale_x_discrete(name = "Life stage") +
   scale_y_continuous(name = "Stability time", limits = c(0,25)) +
   theme(axis.line.x = element_line(size = 0.5, colour = "black"),
@@ -3763,8 +3777,8 @@ dev.off()
 ###############
 
 # create boxplot for proportion significantly wrong between different life stages
-tick_dataset_results_ls <- subset(tick_dataset_results, life_stage == "adult" | life_stage == "nymph" | life_stage == "larvae")
-tick_dataset_results_ls$life_stage <- factor(tick_dataset_results_ls$life_stage, c("adult", "nymph", "larvae"))
+tick_dataset_results_ls <- subset(tick_dataset_results, life_stage == "larvae" | life_stage == "nymph" | life_stage == "adult")
+tick_dataset_results_ls$life_stage <- factor(tick_dataset_results_ls$life_stage, c("larvae", "nymph", "adult"))
 
 #set up compact letter display
 box.rslt <- with(tick_dataset_results_ls, graphics::boxplot(proportion_wrong_before_stability ~ life_stage, plot = FALSE))
@@ -3779,7 +3793,6 @@ proportion_wrong_before_stab_by_life_stage <- ggplot(tick_dataset_results_ls, ae
   geom_boxplot() + 
   geom_jitter() +
   geom_text(data = ltr_df, aes(x=x, y=y, label=cbd), nudge_y = 0.05,color="red", size=6) +
-  #  geom_signif(comparisons = list(c("adult", "nymph")), map_signif_level=TRUE, y_position = 1.05, test = "t.test") +
   scale_x_discrete(name = "Life stage") +
   scale_y_continuous(name = "Proportion significantly wrong \nbefore stability", limits = c(0,1.05)) +
   theme(axis.line.x = element_line(size = 0.5, colour = "black"),
@@ -3916,7 +3929,7 @@ y <- box.rslt$stats[5, ]
 cbd <- ltrs$Letters
 ltr_df <- data.frame(x, y, cbd)
 
-# create boxplot for proportion significantly wrong between different geographic scopes
+# create boxplot for stability time between different geographic scopes
 stability_time_by_geographic_scope <- ggplot(tick_dataset_results, aes(x = geographic_scope, y = stability_time)) +
   geom_boxplot() + 
   geom_jitter() +
